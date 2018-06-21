@@ -2,7 +2,7 @@ import qs from "query-string";
 
 const pageSize = 100;
 
-function fetchOnce(token, url, payload = undefined, method = "get") {
+function callGitlab(token, url, payload = undefined, method = "get") {
   const headers = new Headers();
   headers.append("Private-Token", token);
 
@@ -27,10 +27,10 @@ function fetchOnce(token, url, payload = undefined, method = "get") {
  *
  * @return {Promise} Promise resolving to aggregated data as an object
  */
-export default function fetchGitlab(token, url, payload = undefined, page = 1, recursiveData = []) {
+function fetchGitlab(token, url, payload = undefined, page = 1, recursiveData = []) {
   let totalPages;
 
-  return fetchOnce(token, url, { ...payload, "per_page": pageSize, page })
+  return callGitlab(token, url, { ...payload, "per_page": pageSize, page })
     .then(response => {
       totalPages = parseInt(response.headers.get("x-total-pages"));
 
@@ -46,3 +46,5 @@ export default function fetchGitlab(token, url, payload = undefined, page = 1, r
       return fetchGitlab(token, url, payload, page + 1, recursiveData);
     });
 }
+
+export { callGitlab, fetchGitlab };
