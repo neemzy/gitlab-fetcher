@@ -2,6 +2,14 @@ import qs from "query-string";
 
 const pageSize = 100;
 
+/**
+ * @param {String} token
+ * @param {String} url
+ * @param {Object} [payload]
+ * @param {String} [method]
+ *
+ * @return {Promise} Promise resolving to aggregated data as an object
+ */
 function callGitlab(token, url, payload = undefined, method = "get") {
   const headers = new Headers();
   headers.append("Private-Token", token);
@@ -9,21 +17,28 @@ function callGitlab(token, url, payload = undefined, method = "get") {
   return fetch(
     url + (payload ? "?" + qs.stringify(payload) : ""),
     { method, headers }
-  ).then(response => {
-    if (!response.ok) {
-      throw Error(response.statusText);
+  ).then(async (response) => {
+    if (response.ok) {
+      return response;
     }
 
-    return response;
+    let message = response.statusText;
+
+    try {
+      const json = await response.json();
+      message = json.message;
+    } catch (e) {}
+
+    throw new Error(message);
   });
 }
 
 /**
  * @param {String} token
  * @param {String} url
- * @param {Object} payload
- * @param {Number} page          Internal, do not use
- * @param {Array}  recursiveData Internal, do not use
+ * @param {Object} [payload]
+ * @param {Number} [page]          Internal, do not use
+ * @param {Array}  [recursiveData] Internal, do not use
  *
  * @return {Promise} Promise resolving to aggregated data as an object
  */
