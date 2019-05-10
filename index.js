@@ -26,7 +26,7 @@ function callGitlab(token, url, payload = undefined, method = "get") {
 
     try {
       const json = await response.json();
-      message = json.message;
+      message = json.error;
     } catch (e) {}
 
     throw new Error(message);
