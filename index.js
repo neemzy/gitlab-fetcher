@@ -26,7 +26,13 @@ function callGitlab(token, url, payload = undefined, method = "get") {
 
     try {
       const json = await response.json();
-      message = json.error;
+
+      // Account for irregular Gitlab response format
+      if ("error" in json) {
+        message = json.error;
+      } else if ("message" in json) {
+        message = json.message;
+      }
     } catch (e) {}
 
     throw new Error(message);
